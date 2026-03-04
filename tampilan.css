@@ -1,0 +1,165 @@
+*, html {
+    margin: 0;
+    padding: 0;
+}
+
+.header {
+    display:flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 5px;
+    width: 100%;
+    position: fixed;
+    background-color:rgb(30, 29, 29);
+    z-index: 2;
+    gap: 20px;
+    box-shadow: 0 4px rgba(0, 0, 0, 0.15);
+}
+
+.nama {
+    display: flex;
+    font-size: 10px;
+    margin-left: 10px;
+}
+
+.web {
+    color: #f5f5f5;
+}
+
+.project {
+    color: red;
+    margin-left: 6px;
+}
+
+.header-navbar {
+    text-decoration: none;
+    margin-right: 10px;
+}
+
+.navbar-home {
+    padding: 10px;
+    font-size: medium;
+    font-family: 'Courier New', Courier, monospace;
+    color: #f5f5f5;
+}
+
+.navbar-home:hover {
+    color: red;
+    transition: 0.3s;
+    text-decoration:none;
+    list-style-type: none;
+}
+
+.navbar-about {
+    padding: 10px;
+    font-size: medium;
+    font-family: 'Courier New', Courier, monospace;
+    border-radius:25px;
+    color: #f5f5f5;
+}
+
+.navbar-about:hover {
+    color:red;
+    transition: 0.3s;
+}
+
+.navbar-footer {
+    
+    padding: 10px;
+    font-size: medium;
+    font-family: 'Courier New', Courier, monospace;
+    border-radius:25px;
+    color: #f5f5f5;
+}
+
+.navbar-footer:hover {
+    color:red;
+    transition: 0.3s;
+}
+
+/* main */
+
+
+
+.main-div {
+    background-color: rgb(60, 69, 78);
+    display:flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    flex-direction: column;
+    z-index: 1;
+}
+
+.h3 {
+    
+    font-family:'Courier New', Courier, monospace;
+    font-size:30px; 
+    color: #f5f5f5;
+    align-self: flex-start;
+    margin-left: 420px ;
+}
+
+
+.h1 {
+    font-family:'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
+    font-size: 100px;
+    color: #f5f5f5;
+}
+
+.h1:hover {
+    background: linear-gradient(135deg, rgb(255, 2, 2), rgb(86, 80, 80));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    transition: 0.3s;
+
+}
+
+.h5 {
+    font-family: 'Courier New', Courier, monospace;
+    gap:4px;
+    overflow: hidden;
+    text-wrap: nowrap;
+    color: rgb(23, 23, 23);
+}
+
+/* div card */
+
+.section-card {
+    background-color: rgb(60, 69, 78);
+    min-height: 100vh;
+    display: flex;
+    justify-content: column;
+    flex-direction: column;
+    align-items: center; 
+    
+}
+
+.card-project {
+    font-size: 50px;
+    font-weight: bold;
+    display: flex;
+    justify-content: center;
+    justify-items: center;
+    width: 100%;
+    color: #f5f5f5;
+}
+
+.div-card {
+    height: 100%;
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+.card {
+    background: linear-gradient(160deg, #fdfcfc, #4b4848);
+    height: 300px;
+    width: 300px;
+    margin: 10px;
+    border-radius: 10px;
+    box-shadow: 0 4px rgba(255, 255, 255, 0.15);
+}
+
