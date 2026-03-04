@@ -1,0 +1,1810 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Project Razdn</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
+
+    <style>
+        /* ─── Reset & Base ─── */
+        *, html { margin: 0; padding: 0; box-sizing: border-box; }
+
+        :root {
+            --primary:    #283242;
+            --accent:     #22d3ee;
+            --bg:         #060a10;
+            --card-bg:    #283242;
+        }
+
+        body {
+            font-family: system-ui, sans-serif;
+            background: var(--bg);
+            color: #e2e8f0;
+            min-height: 100vh;
+        }
+
+        /* ═══════════════════════════════════
+           LOGIN PAGE
+        ═══════════════════════════════════ */
+        #login-page {
+            position: fixed;
+            inset: 0;
+            background: #111;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 9000;
+            transition: opacity 0.6s ease;
+        }
+
+        #login-page.hidden {
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .ring {
+            position: relative;
+            width: 500px;
+            height: 500px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .ring i {
+            position: absolute;
+            inset: 0;
+            border: 2px solid #fff;
+            transition: 0.5s;
+        }
+
+        .ring i:nth-child(1) {
+            border-radius: 38% 62% 63% 37% / 41% 44% 56% 59%;
+            animation: animate_ring 6s linear infinite;
+        }
+
+        .ring i:nth-child(2) {
+            border-radius: 41% 44% 56% 59% / 38% 62% 63% 37%;
+            animation: animate_ring 4s linear infinite reverse;
+        }
+
+        .ring i:nth-child(3) {
+            border-radius: 41% 44% 56% 59% / 38% 62% 63% 37%;
+            animation: animate_ring 10s linear infinite;
+        }
+
+        .ring:hover i {
+            border: 6px solid var(--clr);
+            filter: drop-shadow(0 0 20px var(--clr));
+        }
+
+        @keyframes animate_ring {
+            from { transform: rotate(0deg); }
+            to   { transform: rotate(360deg); }
+        }
+
+        .login-form {
+            position: absolute;
+            inset: 20px;
+            background: rgba(255,255,255,0.15);
+            backdrop-filter: blur(15px);
+            border: 1px solid rgba(255,255,255,0.25);
+            border-radius: 1000px;
+            padding: 40px 30px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .login-form h2 {
+            color: white;
+            font-size: 2rem;
+            margin-bottom: 2rem;
+            text-shadow: 0 2px 10px rgba(0,0,0,0.3);
+        }
+
+        .inputBx {
+            width: 100%;
+            margin-bottom: 1.5rem;
+        }
+
+        .inputBx input {
+            width: 100%;
+            padding: 12px 15px;
+            background: rgba(255,255,255,0.2);
+            border: none;
+            outline: none;
+            border-radius: 30px;
+            color: white;
+            font-size: 1.1rem;
+        }
+
+        .inputBx input::placeholder { color: rgba(255,255,255,0.7); }
+
+        .inputBx input[type="submit"] {
+            background: var(--accent);
+            color: #0f172a;
+            font-weight: bold;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        .inputBx input[type="submit"]:hover {
+            background: #67e8f9;
+            transform: translateY(-2px);
+        }
+
+        /* ═══════════════════════════════════
+           DASHBOARD
+        ═══════════════════════════════════ */
+        #dashboard { display: none; }
+
+        .sidebar {
+            position: fixed;
+            left: 0; top: 0; bottom: 0;
+            width: 72px;
+            background: var(--primary);
+            color: white;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding-top: 2rem;
+            gap: 2.2rem;
+            z-index: 10;
+            transition: width 0.35s ease;
+            overflow: hidden;
+            white-space: nowrap;
+        }
+
+        .sidebar.expanded {
+            width: 220px;
+            align-items: flex-start;
+            padding-left: 1.2rem;
+        }
+
+        .sidebar .menu-item {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            width: 100%;
+            padding: 0.6rem 0.8rem;
+            border-radius: 0 12px 12px 0;
+        }
+
+        .sidebar .menu-item i {
+            font-size: 1.5rem;
+            min-width: 40px;
+            text-align: center;
+        }
+
+        .sidebar .menu-item span {
+            opacity: 0;
+            transform: translateX(-10px);
+            transition: opacity 0.3s, transform 0.3s;
+        }
+
+        .sidebar.expanded .menu-item span {
+            opacity: 1;
+            transform: translateX(0);
+        }
+
+        .sidebar .menu-item:hover {
+            background: rgba(255,255,255,0.13);
+            transform: translateX(4px);
+            border-radius: 20px;
+        }
+
+        main {
+            margin-left: 90px;
+            max-width: 1400px;
+            transition: margin-left 0.35s ease;
+            min-height: calc(100vh - 80px);
+        }
+
+        .sidebar.expanded ~ main { margin-left: 238px; }
+
+        .topbar {
+            display: flex;
+            justify-content: flex-end;
+            align-items: center;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .profile {
+            display: flex;
+            align-items: center;
+            gap: 0.9rem;
+            background: linear-gradient(135deg, #78a3eb, #fbc2eb);
+            padding: 0.6rem 1.2rem;
+            border-radius: 999px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+            cursor: pointer;
+            color: #060a10;
+            font-size: 1.6rem;
+            font-weight: 600;
+            margin-top: 1rem;
+        }
+
+        .profile img {
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            border: 3px solid var(--accent);
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+            gap: 1.4rem;
+        }
+
+        .card {
+            background: linear-gradient(90deg, #d203e1c1, #03cdffcc);
+            backdrop-filter: blur(12px);
+            border-radius: 24px;
+            padding: 1.6rem;
+            border: 1px solid rgba(255,255,255,0.35);
+            box-shadow: 0 10px 40px rgba(99,102,241,0.12);
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            text-align: center;
+        }
+
+        .card:hover {
+            transform: translateY(-6px);
+            box-shadow: 0 16px 50px rgba(99,102,241,0.22);
+        }
+
+        .card-icon  { font-size: 3.5rem; margin-bottom: 1rem;  color: white; }
+        .card-title { font-size: 1.4rem; font-weight: 700; margin-bottom: 0.8rem; color: white; }
+        .card-desc  { font-size: 1.1rem; color: white; }
+
+        @media (max-width: 768px) {
+            main { margin-left: 0; padding: 1rem; }
+            .sidebar { width: 64px; }
+            .sidebar.expanded { width: 200px; }
+            .sidebar.expanded ~ main { margin-left: 218px; }
+            .grid { grid-template-columns: 1fr; }
+        }
+
+        /* ═══════════════════════════════════
+           PRACTICE PAGES — shared base
+        ═══════════════════════════════════ */
+        .practice-page {
+            display: none;
+            position: relative;
+            min-height: 100vh;
+            padding: 5rem 2rem 2rem;
+            overflow: hidden;
+        }
+
+        /* ── Back button — hanya muncul di dalam .practice-page ── */
+        .back-btn {
+            position: absolute;      /* absolute terhadap .practice-page, bukan fixed ke layar */
+            top: 16px;
+            left: 16px;
+            z-index: 100;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+            min-width: 160px;
+            padding: 0.55rem 1.15rem;
+            font-size: 0.92rem;
+            font-weight: 600;
+            color: white;
+            border: 1px solid rgba(255,255,255,0.2);
+            border-radius: 10px;
+            background: rgba(0,0,0,0.35);
+            backdrop-filter: blur(10px);
+            cursor: pointer;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.35);
+            transition: all 0.2s ease;
+        }
+
+        .back-btn:hover  { transform: translateY(-2px); box-shadow: 0 6px 16px rgba(0,0,0,0.45); background: rgba(0,0,0,0.5); }
+        .back-btn:active { transform: translateY(0); }
+
+        .practice-container {
+            background: rgba(255,255,255,0.15);
+            backdrop-filter: blur(15px);
+            border-radius: 20px;
+            padding: 2.5rem;
+            max-width: 500px;
+            margin: 0 auto;
+            border: 1px solid rgba(255,255,255,0.2);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+
+        /* ═══════════════════════════════════
+           HALAMAN GRADE
+        ═══════════════════════════════════ */
+        #page-grade {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        #page-grade::before {
+            content: "";
+            position: absolute;
+            inset: 0;
+            top: 50%;
+            left: 50%;
+            width: 100vh;
+            height: 100vw;
+            background: url("https://i.pinimg.com/1200x/c6/7a/18/c67a18d8101350ddc0ef53f22a79b091.jpg") center/cover no-repeat;
+            transform: translate(-50%, -50%) rotate(90deg);
+            z-index: 0;
+        }
+
+        #page-grade .main-container {
+            position: relative;
+            z-index: 1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            width: 100%;
+            animation: slideUp 0.8s ease-out;
+        }
+
+        #page-grade .grade-card {
+            position: relative;
+            z-index: 1;
+            background: rgba(209, 209, 214, 0.61);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,255,255,0.2);
+            border-radius: 20px;
+            padding: 40px;
+            width: 380px;
+            max-width: 90vw;
+            text-align: center;
+            color: #720f32;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.2);
+        }
+
+        #page-grade .grade-card h1 { margin-bottom: 1rem; }
+
+        #page-grade .input-group {
+            margin-bottom: 20px;
+            text-align: left;
+        }
+
+        #page-grade .input-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+        }
+
+        #page-grade .form-control {
+            width: 100%;
+            padding: 12px;
+            background: #d1d1d69f;
+            color: #720f32;
+            border: 2px solid transparent;
+            border-radius: 10px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        #page-grade .form-control:focus {
+            outline: none;
+            background: rgba(227,220,220,0.9);
+            box-shadow: 0 0 10px #720f32;
+            border-color: #720f32;
+        }
+
+        #page-grade .grade-btn {
+            width: 65%;
+            padding: 14px;
+            background-color: #720f32;
+            color: #d1d1d6;
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 1rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            transition: all 0.3s;
+        }
+
+        #page-grade .grade-btn:hover  { background-color: #4b0920; transform: translateY(-3px); box-shadow: 0 5px 15px rgba(0,0,0,0.3); }
+        #page-grade .grade-btn:active { transform: translateY(-1px); }
+
+        #page-grade .result-container { margin-top: 30px; }
+        #page-grade .result-container.hidden { display: none; }
+
+        #page-grade #hurufGrade {
+            font-size: 5rem;
+            font-weight: 800;
+            text-shadow: 0 0 20px rgba(237,223,223,0.6);
+            transition: color 0.5s ease-in-out;
+        }
+
+        #page-grade #keterangan { font-size: 1.2rem; margin-top: 1rem; }
+
+        /* ═══════════════════════════════════
+           HALAMAN SELAMAT DATANG
+        ═══════════════════════════════════ */
+        #page-selamat-datang {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        #page-selamat-datang::before {
+            content: "";
+            position: absolute;
+            inset: 0;
+            background: url("https://i.pinimg.com/1200x/db/9d/f6/db9df6d9a04367d26e569eab7820cfbc.jpg") center/cover no-repeat;
+            transform: translate(-50%, -50%) rotate(90deg);
+            z-index: 0;
+            filter: brightness(0.7);
+            animation: bgZoom 20s infinite alternate ease-in-out;
+        }
+
+        @keyframes bgZoom {
+            from { transform: scale(1); }
+            to   { transform: scale(1.1); }
+        }
+
+        #page-selamat-datang .main-container {
+            position: relative;
+            z-index: 1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            width: 100%;
+        }
+
+        #page-selamat-datang .welcome-card {
+            position: relative;
+            z-index: 1;
+            background: rgba(214,189,152,0.625);
+            backdrop-filter: blur(10px);
+            padding: 3rem;
+            border-radius: 20px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.3);
+            text-align: center;
+            border: 1px solid rgba(255,255,255,0.3);
+            animation: slideUp 0.8s ease-out;
+            max-width: 350px;
+            width: 90%;
+        }
+
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(30px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+
+        #page-selamat-datang h1 { margin-top: 0; font-size: 2rem; }
+
+        #page-selamat-datang input {
+            padding: 14px;
+            width: 100%;
+            border: 2px solid transparent;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            font-size: 16px;
+            transition: all 0.3s ease;
+            background: rgba(255,255,255,0.9);
+            outline: none;
+            color: #1a3636;
+        }
+
+        #page-selamat-datang input:focus {
+            border-color: #677d6a;
+            box-shadow: 0 0 10px rgba(103,125,106,0.3);
+            transform: scale(1.02);
+        }
+
+        #page-selamat-datang .welcome-card > button {
+            padding: 12px 30px;
+            background-color: #677d6a;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 16px;
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            width: 100%;
+        }
+
+        #page-selamat-datang .welcome-card > button:hover {
+            background-color: #4f6151;
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+
+        #page-selamat-datang .welcome-card > button:active { transform: translateY(0); }
+
+        /* Modal selamat datang */
+        #page-selamat-datang .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.7);
+            backdrop-filter: blur(5px);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        #page-selamat-datang .modal-overlay.active { display: flex; }
+
+        #page-selamat-datang .modal-content {
+            background: #d6bd98;
+            padding: 40px;
+            border-radius: 20px;
+            text-align: center;
+            max-width: 400px;
+            width: 85%;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.4);
+            transform: scale(0.5);
+            opacity: 0;
+            transition: all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+        }
+
+        #page-selamat-datang .modal-overlay.active .modal-content {
+            transform: scale(1);
+            opacity: 1;
+        }
+
+        #page-selamat-datang .close-btn {
+            margin-top: 25px;
+            padding: 12px 30px;
+            background-color: #1a3636;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 16px;
+            width: 100%;
+            transition: all 0.3s;
+        }
+
+        #page-selamat-datang .close-btn:hover { background-color: #0f2222; }
+
+        #page-selamat-datang .rocket-icon {
+            font-size: 3rem;
+            display: block;
+            margin-bottom: 10px;
+            animation: bounce 2s infinite;
+        }
+
+        @keyframes bounce {
+            0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
+            40% { transform: translateY(-10px); }
+            60% { transform: translateY(-5px); }
+        }
+
+        /* ═══════════════════════════════════
+           HALAMAN KELULUSAN
+        ═══════════════════════════════════ */
+        #page-kelulusan {
+            font-family: 'Segoe UI', system-ui, sans-serif;
+            color: #bf7e46;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        #page-kelulusan::before {
+            content: "";
+            position: absolute;
+            inset: 0;
+            background: url("https://i.pinimg.com/1200x/e9/23/77/e9237738035c045135ed05302b91c4d0.jpg") center/cover no-repeat;
+            z-index: 0;
+        }
+
+        #page-kelulusan #particles {
+            position: absolute;
+            inset: 0;
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        #page-kelulusan .main-container {
+            position: relative;
+            z-index: 2;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            width: 100%;
+            animation: slideUp 0.8s ease-out;animation-direction: 456;
+        }
+
+        #page-kelulusan .lulus-card {
+            background: rgba(251,237,222,0.58);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            padding: 2.5rem 2rem;
+            border-radius: 20px;
+            text-align: center;
+            box-shadow: 0 15px 40px rgba(0,0,0,0.5);
+            border: 1px solid rgba(191,126,70,0.3);
+            width: 340px;
+            max-width: 90%;
+        }
+
+        #page-kelulusan h2 {
+            margin-bottom: 1.2rem;
+            font-size: 1.8rem;
+            text-shadow: 0 2px 10px rgba(191,126,70,0.6);
+        }
+
+        #page-kelulusan input {
+            padding: 14px;
+            width: 100%;
+            border-radius: 12px;
+            border: 2px solid rgba(191,126,70,0.4);
+            background: rgba(255,255,255,0.15);
+            color: rgb(191,126,70);
+            font-size: 1.1rem;
+            text-align: center;
+            margin-bottom: 1.5rem;
+            transition: all 0.3s;
+        }
+
+        #page-kelulusan input:focus {
+            outline: none;
+            border-color: #bf7e46;
+            box-shadow: 0 0 15px rgba(191,126,70,0.5);
+            background: rgba(255,255,255,0.25);
+        }
+
+        #page-kelulusan .lulus-card > button {
+            padding: 14px 32px;
+            background: linear-gradient(135deg, #bf7e46, #a66a38);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 6px 20px rgba(191,126,70,0.4);
+        }
+
+        #page-kelulusan .lulus-card > button:hover  { transform: translateY(-3px) scale(1.05); box-shadow: 0 10px 30px rgba(191,126,70,0.6); }
+        #page-kelulusan .lulus-card > button:active { transform: translateY(1px) scale(0.98); }
+
+        #page-kelulusan .overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.75);
+            backdrop-filter: blur(6px);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 999;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.5s ease;
+        }
+
+        #page-kelulusan .overlay.show { opacity: 1; visibility: visible; }
+
+        #page-kelulusan .popup {
+            background: rgba(251,237,222,0.95);
+            color: #2c1800;
+            padding: 2.5rem 2rem;
+            border-radius: 20px;
+            text-align: center;
+            width: 320px;
+            max-width: 90%;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.6);
+            border: 2px solid #bf7e46;
+            transform: scale(0.6) translateY(40px);
+            opacity: 0;
+            transition: all 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        #page-kelulusan .overlay.show .popup { transform: scale(1) translateY(0); opacity: 1; }
+
+        #page-kelulusan #status {
+            font-size: 3.5rem;
+            font-weight: 900;
+            margin-bottom: 0.8rem;
+            text-shadow: 0 3px 15px rgba(0,0,0,0.3);
+            letter-spacing: 2px;
+        }
+
+        #page-kelulusan #status.success { color: #02da38; animation: glowPulse 2s infinite alternate; }
+        #page-kelulusan #status.danger  { color: #ff4d4d; animation: shake 0.5s ease; }
+
+        @keyframes glowPulse {
+            from { text-shadow: 0 0 10px #f2f7f5, 0 0 30px #14d188; }
+            to   { text-shadow: 0 0 25px #fafcfb, 0 0 60px #00ff9d; }
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25%       { transform: translateX(-6px); }
+            75%       { transform: translateX(6px); }
+        }
+
+        #page-kelulusan .btn-tutup {
+            margin-top: 1.5rem;
+            padding: 12px 40px;
+            background: linear-gradient(135deg, #bf7e46, #a66a38);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        #page-kelulusan .btn-tutup:hover { transform: scale(1.08); box-shadow: 0 8px 25px rgba(191,126,70,0.5); }
+
+         #page-operasi {
+            background-image: url("https://i.pinimg.com/1200x/75/de/9f/75de9fced4a91bf9b3bbb042b8e391fd.jpg");
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+        }
+
+        #page-operasi input[type="number"] {
+            width: 100%;
+            padding: 14px 16px;
+            margin: 12px 0;
+            border: none;
+            border-radius: 10px;
+            background: rgba(255, 255, 255, 0.15);
+            color: white;
+            font-size: 1.1rem;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(4px);
+        }
+        #page-operasi  input[type="number"]:focus {
+            outline: none;
+            background: rgba(255, 255, 255, 0.25);
+            box-shadow: 0 0 10px rgba(255,255,255,0.5);
+            transform: scale(1.02);
+        }
+
+        #page-operasi input::placeholder {
+            color: rgba(255, 255, 255, 0.6);
+        }
+        #page-operasi div button {
+            width: 100%;
+            padding: 14px;
+            margin-top: 10px;
+            background-color: #7952d5fe;
+            border: none;
+            border-radius: 10px;
+            color: white;
+            font-size: 1.15rem;
+            font-weight: bold;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s ease;
+            box-shadow: 0 6px 20px rgba(121, 82, 213, 0.4);
+        }
+        #page-operasi div button:hover {
+            background-color: #5a3eb9;
+            transform: translateY(-3px);
+            box-shadow: 0 10px 30px rgba(121, 82, 213, 0.6);
+        }
+        #page-operasi div button::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 300%;
+            height: 300%;
+            background: radial-gradient(circle, rgba(255,255,255,0.3) 10%, transparent 40%);
+            transform: translate(-50%, -50%) scale(0);
+            transition: transform 0.6s ease;
+            pointer-events: none;
+        }
+        #page-operasi div button:active::before {
+            transform: translate(-50%, -50%) scale(1);
+            transition: transform 0s;
+        }
+        #page-operasi .hidden {
+            max-height: 0;
+            opacity: 0;
+            overflow: hidden;
+            transition: all 0.8s cubic-bezier(0.23, 1, 0.32, 1);
+        }
+        #page-operasi .show-slide {
+            max-height: 600px;
+            opacity: 1;
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid rgba(255, 255, 255, 0.25);
+        }
+        #page-operasi #hasil-container p {
+            font-size: 1.15rem;
+            margin: 14px 0;
+            text-align: left;
+            display: flex;
+            justify-content: space-between;
+            opacity: 0;
+            transform: translateY(20px);
+            animation: fadeUp 0.6s forwards;
+        }
+        #page-operasi #hasil-container p:nth-child(1) { animation-delay: 0.1s; }
+        #page-operasi #hasil-container p:nth-child(2) { animation-delay: 0.2s; }
+        #page-operasi #hasil-container p:nth-child(3) { animation-delay: 0.3s; }
+        #page-operasi #hasil-container p:nth-child(4) { animation-delay: 0.4s; }
+        #page-operasi .result-label {
+            font-weight: bold;
+        }
+        #page-operasi .result-value {
+            font-weight: bold;
+            color: #e0d4ff;
+            background: rgba(121, 82, 213, 0.2);
+            padding: 4px 12px;
+            border-radius: 8px;
+            min-width: 110px;
+            text-align: right;
+            text-shadow: 0 0 8px rgba(121, 82, 213, 0.5);
+        }
+         @keyframes fadeUp {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+         #page-kalkulator {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        #page-kalkulator::before {
+            content: "";
+            position: absolute;
+            inset: 0;
+            top: 50%;
+            left: 50%;
+            width: 100vh; /* Tukar lebar jadi tinggi */
+            height: 100vw; /* Tukar tinggi jadi lebar */
+            background: url("https://i.pinimg.com/736x/d7/88/15/d788156ea5ccfa53d17902bf379626e6.jpg") center/cover no-repeat;
+            transform: translate(-50%, -50%) rotate(90deg);
+            z-index: 0;
+        }
+
+        #page-kalkulator .hitung {
+            display:flex; 
+            gap:0.8rem; 
+            justify-content:center; 
+            margin-bottom:1.5rem;
+        }
+        #page-kalkulator .hitung button {
+           flex: 1;
+            padding: 15px;
+            border: none;
+            border-radius: 10px;
+            background: #ffffff;
+            color: #fe82f4;
+            font-size: 20px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            margin-bottom:1.5rem;
+            margin-top: 1rem;
+        }
+
+        #page-kalkulator .hitung button:hover {
+            background: #9bd9ff;
+            color: white;
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+
+        #page-kalkulator .hitung button:active {
+            transform: translateY(1px);
+        }
+
+        #page-kalkulator .input {
+            width: 100%;
+            padding: 12px;
+            margin: 10px 0;
+            border: none;
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.9);
+            outline: none;
+            font-size: 16px;
+            transition: 0.3s;
+        }
+
+        #page-kalkulator .input:focus {
+            transform: scale(1.02);
+            box-shadow: 0 0 10px rgba(255,255,255,0.5);
+        }
+        #page-kalkulator .result-box {
+            margin-top: 20px;
+            padding: 15px;
+            background: rgba(0, 0, 0, 0.1);
+            border-radius: 10px;
+
+            overflow-x: auto; /* Memungkinkan geser/scroll horizontal jika konten meluap */
+            white-space: nowrap; /* Mencegah teks turun ke baris baru agar bisa di-scroll kesamping */
+        }
+
+        #page-kalkulator .result-box::-webkit-scrollbar {
+         height: 6px; /* Tinggi scrollbar horizontal */
+        }
+
+        #page-kalkulator .result-box::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.3); /* Warna gagang scrollbar */
+            border-radius: 10px; /* Membuat gagang lonjong */
+        }
+
+        #page-kalkulator .result-box::-webkit-scrollbar-track {
+            background: transparent; /* Latar belakang jalur scrollbar */
+        }
+
+        #page-kalkulator .calc-container {
+        background: rgba(255, 255, 255, 0.2);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        padding: 30px;
+        border-radius: 20px;
+        box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
+        width: 350px;
+        text-align: center;
+        color: white;
+        font-weight: bold;
+        font-size: 1rem;
+        margin:auto;
+        animation: slideUp 0.8s ease-out;
+        }
+        
+        #page-login-sederhana {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        #page-login-sederhana::before {
+            content: "";
+            position: absolute;
+            inset: 0;
+            top: 50%;
+            left: 50%;
+            width: 100vh; /* Tukar lebar jadi tinggi */
+            height: 100vw; /* Tukar tinggi jadi lebar */
+            background: url("https://i.pinimg.com/736x/44/6b/1d/446b1df8ea79e930305281aa6534153b.jpg") center/cover no-repeat;
+            transform: translate(-50%, -50%) rotate(90deg);
+            z-index: 0;
+        }
+
+        /* Tombol Kembali – sangat spesifik */
+
+        /* Container utama – scoped */
+        #page-login-sederhana .login-container {
+            margin: auto;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(15px);
+            padding: 40px;
+            border-radius: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
+            width: 350px;
+            max-width: 90%;
+            text-align: center;
+            animation: slideUp 0.8s ease-out;
+        }
+
+        #page-login-sederhana .login-container:hover {
+            transform: translateY(-5px);
+        }
+
+        #page-login-sederhana h2 {
+            color: white;
+            margin-bottom: 25px;
+            letter-spacing: 2px;
+            font-size: 2rem;
+        }
+
+        /* Input Group – scoped */
+        #page-login-sederhana .input-group {
+            position: relative;
+            margin-bottom: 25px;
+        }
+
+        #page-login-sederhana .input-group input {
+            width: 100%;
+            padding: 10px 0;
+            font-size: 16px;
+            color: white;
+            background: transparent;
+            border: none;
+            border-bottom: 2px solid white;
+            outline: none;
+            transition: border-color 0.3s;
+        }
+
+        #page-login-sederhana .input-group input:focus {
+            border-bottom-color: #ff9a9e;
+        }
+
+        #page-login-sederhana .input-group label {
+            position: absolute;
+            top: 10px;
+            left: 0;
+            color: rgba(255, 255, 255, 0.7);
+            pointer-events: none;
+            transition: 0.3s ease;
+        }
+
+        #page-login-sederhana .input-group input:focus ~ label,
+        #page-login-sederhana .input-group input:valid ~ label {
+            top: -15px;
+            font-size: 12px;
+            color: #ff9a9e;
+        }
+
+        /* Tombol Login – scoped */
+        #page-login-sederhana div button {
+            width: 100%;
+            padding: 12px;
+            border: none;
+            border-radius: 25px;
+            background: white;
+            color: #1d2b64;
+            font-weight: bold;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        #page-login-sederhana div button:hover {
+            background: #ff9a9e;
+            color: white;
+            box-shadow: 0 5px 15px rgba(255, 154, 158, 0.4);
+            transform: translateY(-2px);
+        }
+
+        /* Pesan status – scoped */
+        #page-login-sederhana #message {
+            margin-top: 20px;
+            padding: 12px;
+            border-radius: 12px;
+            font-size: 14px;
+            font-weight: 600;
+            opacity: 0;
+            transform: scale(0.9);
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        #page-login-sederhana #message.show {
+            opacity: 1;
+            transform: scale(1);
+        }
+
+        #page-login-sederhana .success {
+            background: rgba(46, 213, 115, 0.2);
+            color: #2ed573;
+            border: 1px solid rgba(46, 213, 115, 0.5);
+            box-shadow: 0 0 15px rgba(46, 213, 115, 0.3);
+        }
+
+        #page-login-sederhana .error {
+            background: rgba(255, 71, 87, 0.2);
+            color: #ff4757;
+            border: 1px solid rgba(255, 71, 87, 0.5);
+            box-shadow: 0 0 15px rgba(255, 71, 87, 0.3);
+            animation: shake 0.5s ease-in-out;
+        }
+        #page-tebak-angka {
+                
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+
+            position: relative;
+            width: 100%;
+            min-height: 100vh;
+
+            overflow: hidden;
+
+        }
+        #page-tebak-angka::before {
+            content: "";
+            position: absolute;
+            inset: 0;
+            top: 50%;
+            left: 50%;
+            width: 100vh; /* Tukar lebar jadi tinggi */
+            height: 100vw; /* Tukartinggi jadi lebar */
+            background: url("https://i.pinimg.com/736x/f5/05/bd/f505bd6da5e31147a8bb889b296c1a03.jpg") center/cover no-repeat;
+            transform: translate(-50%, -50%) rotate(90deg);
+            z-index: 0;
+        }
+
+        #page-tebak-angka .game-container {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            padding: 2rem;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            text-align: center;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            width: 350px;
+            margin:auto;
+            position: relative;
+            z-index: 2;
+            animation: slideUp 0.8s ease-out;
+        }
+
+        /* Input & Button */
+        #page-tebak-angka .input-group {
+            margin: 20px 0;
+        }
+
+        #page-tebak-angka input[type="number"] {
+            padding: 12px;
+            width: 80px;
+            border-radius: 10px;
+            border: none;
+            font-size: 1.2rem;
+            text-align: center;
+            margin-right: 10px;
+        }
+
+        #page-tebak-angka div button {
+            padding: 12px 25px;
+            border-radius: 10px;
+            border: none;
+            background: #678bad;
+            color: #dddad8;
+            font-weight: bold;
+            cursor: pointer;
+            transition: transform 0.2s, background 0.3s;
+        }
+
+        #page-tebak-angka div button:hover {
+            background: #002339;
+            transform: scale(1.05);
+        }
+
+        /* Pesan Hasil */
+        #page-tebak-angka .message {
+            margin-top: 20px;
+            min-height: 24px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            padding: 10px;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+        }
+
+        /* Animasi & Warna Dinamis */
+        #page-tebak-angka .success {
+            background: #27ae60;
+            color: white;
+            animation: bounce 0.5s ease;
+        }
+
+        #page-tebak-angka .error {
+            background: #e74c3c;
+            color: white;
+            animation: shake 0.4s ease;
+        }
+
+        #page-tebak-angka .hidden {
+            display: none;
+        }
+
+        #page-tebak-angka .icon-gradient-glow {
+        background: linear-gradient(to bottom, #a0e5d9, #09cdcd);
+        filter: drop-shadow(0 0 8px #80ed99); 
+        -webkit-background-clip: text;
+        background-clip: text;
+        color: transparent;
+        display: inline-block;
+        font-size: 1.2em; 
+        filter: drop-shadow(0 0 8px #80ed99);
+        animation: pulse 1.5s infinite;
+        
+        }
+        
+
+        @keyframes pulse {
+        0%, 100% {
+            transform: scale(1);
+            filter: drop-shadow(0 0 8px #45dfb1);
+        }
+        50% {
+            transform: scale(1.1);
+            filter: drop-shadow(0 0 20px #09cdcd); /* Glow lebih besar dan lebih kuning di tengah animasi */
+        }
+        }
+
+        /* Keyframes Animasi */
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            75% { transform: translateX(5px); }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- ═══════════ LOGIN PAGE ═══════════ -->
+    <div id="login-page">
+        <div class="ring">
+            <i style="--clr:#ff1cc0;"></i>
+            <i style="--clr:#b131fa;"></i>
+            <i style="--clr:#1c3aff;"></i>
+            <div class="login-form">
+                <h2>Login</h2>
+                <form id="loginFormAction">
+                    <div class="inputBx">
+                        <input type="text" id="username_main" placeholder="Username" required>
+                    </div>
+                    <div class="inputBx">
+                        <input type="password" id="password_main" placeholder="Password" required>
+                    </div>
+                    <div class="inputBx">
+                        <input type="submit" value="Sign in">
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- ═══════════ DASHBOARD ═══════════ -->
+    <div id="dashboard">
+        <div class="sidebar" id="sidebar">
+            <div class="menu-item" data-page="kalkulator">      <i class="fas fa-calculator"></i>   <span>Challenge 1</span></div>
+            <div class="menu-item" data-page="login-sederhana"> <i class="fas fa-sign-in-alt"></i>  <span>Challenge 2</span></div>
+            <div class="menu-item" data-page="tebak-angka">     <i class="fas fa-dice"></i>          <span>Challenge 3</span></div>
+            <div class="menu-item" data-page="selamat-datang">  <i class="fas fa-user"></i>          <span>Latihan 1</span></div>
+            <div class="menu-item" data-page="operasi">         <i class="fas fa-plus-minus"></i>   <span>Latihan 2</span></div>
+            <div class="menu-item" data-page="kelulusan">       <i class="fas fa-check-circle"></i> <span>Latihan 3</span></div>
+            <div class="menu-item" data-page="grade">           <i class="fas fa-graduation-cap"></i><span>Latihan 4</span></div>
+        </div>
+
+        <main>
+            <div class="topbar">
+                <div class="profile" onclick="alert('Profile Aura diklik!')">
+                    <img src="https://ik.imagekit.io/yuraaxzy/profile.jpeg" alt="Aura">
+                    <span>Aura</span>
+                </div>
+            </div>
+
+            <div class="grid">
+                <div class="card" data-page="kalkulator">
+                    <div class="card-icon"><i class="fas fa-calculator"></i></div>
+                    <div class="card-title">Kalkulator Umum</div>
+                    <div class="card-desc">Penjumlahan, pengurangan, perkalian, pembagian</div>
+                </div>
+                <div class="card" data-page="login-sederhana">
+                    <div class="card-icon"><i class="fas fa-sign-in-alt"></i></div>
+                    <div class="card-title">Login Sederhana</div>
+                    <div class="card-desc">Form login dengan pesan</div>
+                </div>
+                <div class="card" data-page="tebak-angka">
+                    <div class="card-icon"><i class="fas fa-dice"></i></div>
+                    <div class="card-title">Tebak Angka</div>
+                    <div class="card-desc">Mini game menebak angka 1-10</div>
+                </div>
+                <div class="card" data-page="selamat-datang">
+                    <div class="card-icon"><i class="fas fa-user"></i></div>
+                    <div class="card-title">Selamat Datang</div>
+                    <div class="card-desc">Masukkan nama mahasiswa</div>
+                </div>
+                <div class="card" data-page="operasi">
+                    <div class="card-icon"><i class="fas fa-plus-minus"></i></div>
+                    <div class="card-title">Operasi Matematika</div>
+                    <div class="card-desc">Semua operasi dasar sekaligus</div>
+                </div>
+                <div class="card" data-page="kelulusan">
+                    <div class="card-icon"><i class="fas fa-check-circle"></i></div>
+                    <div class="card-title">Penentu Kelulusan</div>
+                    <div class="card-desc">Cek apakah lulus atau tidak</div>
+                </div>
+                <div class="card" data-page="grade">
+                    <div class="card-icon"><i class="fas fa-graduation-cap"></i></div>
+                    <div class="card-title">Cek Predikat Nilai</div>
+                    <div class="card-desc">Konversi nilai ke huruf A-E</div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- ═══════════ HALAMAN KALKULATOR ═══════════ -->
+    <div id="page-kalkulator" class="practice-page">
+        <button class="back-btn" onclick="showPage('dashboard')">← Kembali ke Dashboard</button>
+        <div class="calc-container">
+            <h2 style="color:white; text-align:center; margin-bottom:30px; margin-top: 30px; font-size: 2rem; font-weight: 500; ">Simple Calculator</h2>
+            <input type="number" id="angka1" placeholder="Angka pertama" class="input">
+            <input type="number" id="angka2" placeholder="Angka kedua"   class="input">
+            <div class="hitung">
+                <button onclick="hitung('+')">+</button>
+                <button onclick="hitung('-')">-</button>
+                <button onclick="hitung('*')">×</button>
+                <button onclick="hitung('/')">÷</button>
+            </div>
+            <div class="result-box">
+                <span style="color:#ffffff;">Hasil:</span>
+                <h1 id="hasil" style="color:white; font-size:2.5rem;">0</h1>
+            </div>
+        </div>
+    </div>
+
+    <!-- ═══════════ HALAMAN LOGIN SEDERHANA ═══════════ -->
+    <div id="page-login-sederhana" class="practice-page">
+        <button class="back-btn" onclick="showPage('dashboard')">← Kembali ke Dashboard</button>
+        
+        <div class="login-container">
+            <form id="loginForm">
+                <h2>Sign In</h2>
+                
+                <div class="input-group">
+                    <input type="text" id="username" required>
+                    <label>Username</label>
+                </div>
+                
+                <div class="input-group">
+                    <input type="password" id="password" required>
+                    <label>Password</label>
+                </div>
+                
+                <button type="submit">Login</button>
+                <p id="message"></p>
+            </form>
+        </div>
+    </div>
+
+    <!-- ═══════════ HALAMAN TEBAK ANGKA ═══════════ -->
+    <div id="page-tebak-angka" class="practice-page">
+        <button class="back-btn" onclick="showPage('dashboard')">← Kembali ke Dashboard</button>
+       <div class="game-container">
+        <h1>
+            <i class="fas fa-fire icon-gradient-glow"></i>
+            Tebak Angka
+            <i class="fas fa-fire icon-gradient-glow"></i>
+        </h1>
+        <p>Pilih angka antara <b>1 - 10</b>.</p>
+        
+        <div class="input-group">
+            <input type="number" id="userGuess" placeholder="?" min="1" max="10">
+            <button id="guessBtn">Tebak!</button>
+        </div>
+
+        <div id="tebakMessage" class="message"></div>
+        <button id="resetBtn" class="hidden">Main Lagi 🔄</button>
+        </div>
+    </div>
+
+    <!-- ═══════════ HALAMAN SELAMAT DATANG ═══════════ -->
+    <div id="page-selamat-datang" class="practice-page">
+        <button class="back-btn" onclick="showPage('dashboard')">← Kembali ke Dashboard</button>
+        <div class="main-container">
+            <div class="welcome-card">
+                <h1 style="color:#1a3636;">Selamat Datang</h1>
+                <p style="color:#1a3636; margin-bottom:25px;">Masukkan Nama Mahasiswa</p>
+                <input type="text" id="namaInput" placeholder="Contoh: Aura Rizky">
+                <button onclick="bukaModal()">Submit Data 🚀</button>
+
+                <div class="modal-overlay" id="modalOverlay">
+                    <div class="modal-content">
+                        <span class="rocket-icon">🚀</span>
+                        <h3 id="pesanSapaan" style="color:#1a3636; font-size:1.5rem;"></h3>
+                        <p style="color:#1a3636; opacity:0.8;">Ayo semangat mengoding dan ciptakan karya luar biasa!</p>
+                        <button class="close-btn" onclick="tutupModal()">Lanjutkan Belajar</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ═══════════ HALAMAN OPERASI MATEMATIKA ═══════════ -->
+    <div id="page-operasi" class="practice-page">
+        <button class="back-btn" onclick="showPage('dashboard')">← Kembali ke Dashboard</button>
+        <div class="operasi-container" style="max-width:420px; margin:0 auto; background: hsla(0, 0%, 100%, 0.31); backdrop-filter:blur(15px); border-radius:20px; padding:2.5rem; border: 1px solid rgba(255, 255, 255, 0.15); animation: slideUp 0.8s ease-out;;">
+            <h2 style="color:white; text-align:center; margin-bottom:1rem;">Operasi Matematika</h2>
+            <p style="color:#ffffff; text-align:center; margin-bottom:1.5rem;">Masukkan dua angka di bawah ini:</p>
+            <input type="number" id="op-angka1" placeholder="Angka pertama">
+            <input type="number" id="op-angka2" placeholder="Angka kedua">
+            <button onclick="hitungOperasi()" style="width:100%; padding:14px; background:#7952d5fe; border:none; border-radius:10px; font-size:1rem; font-weight:bold; cursor:pointer; margin-bottom:1.5rem;">Hitung Hasil</button>
+            <div id="hasil-operasi" style="display:none; background:rgba(0,0,0,0.3); border-radius:12px; padding:1.2rem;">
+                <p style="color:white; margin-bottom:0.5rem;"><strong>Penjumlahan:</strong> <span id="tambah" style="color:#22d3ee;"></span></p>
+                <p style="color:white; margin-bottom:0.5rem;"><strong>Pengurangan:</strong> <span id="kurang" style="color:#a78bfa;"></span></p>
+                <p style="color:white; margin-bottom:0.5rem;"><strong>Perkalian:</strong>   <span id="kali"  style="color:#34d399;"></span></p>
+                <p style="color:white;"><strong>Pembagian:</strong>   <span id="bagi"  style="color:#fb923c;"></span></p>
+            </div>
+        </div>
+    </div>
+
+    <!-- ═══════════ HALAMAN PENENTU KELULUSAN ═══════════ -->
+    <div id="page-kelulusan" class="practice-page">
+        <button class="back-btn" onclick="showPage('dashboard')">← Kembali ke Dashboard</button>
+        <canvas id="particles"></canvas>
+        <div class="main-container">
+            <div class="lulus-card">
+                <h2>Cek Kelulusan Anda</h2>
+                <p style="margin-bottom:1.2rem;">Masukkan nilai (0-100):</p>
+                <input type="number" id="inputNilaiKelulusan" placeholder="Contoh: 80" min="0" max="100">
+                <button onclick="cekKelulusan()">Cek Hasil</button>
+            </div>
+        </div>
+
+        <div id="overlay" class="overlay">
+            <div class="popup">
+                <h1 id="status"></h1>
+                <p id="pesan"></p>
+                <button class="btn-tutup" onclick="tutupPopup()">Tutup</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ═══════════ HALAMAN CEK GRADE NILAI ═══════════ -->
+    <div id="page-grade" class="practice-page">
+        <button class="back-btn" onclick="showPage('dashboard')">← Kembali ke Dashboard</button>
+        <div class="main-container">
+            <div class="grade-card">
+                <h1>Cek Grade Nilai 🎓</h1>
+                <br>
+                <div class="input-group">
+                    <label for="inputNilai">Masukkan Skor (0-100):</label>
+                    <input type="number" id="inputNilai" class="form-control" placeholder="Contoh: 85">
+                </div>
+                <button class="grade-btn" onclick="hitungGrade()">PROSES</button>
+                <div id="resultBox" class="result-container hidden animate__animated">
+                    <h1 id="hurufGrade"></h1>
+                    <p id="keterangan">Nilai Anda Terkonversi</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ═══════════════════════════════════
+        // LOGIN UTAMA
+        // ═══════════════════════════════════
+        // Sembunyikan semua halaman di awal
+        document.querySelectorAll('#dashboard, .practice-page').forEach(el => {
+            el.style.display = 'none';
+        });
+
+        document.getElementById('loginFormAction').addEventListener('submit', (e) => {
+            e.preventDefault();
+            const username = document.getElementById('username_main').value.trim();
+            const password = document.getElementById('password_main').value.trim();
+
+            if (username === "admin" && password === "456") {
+                const loginPage = document.getElementById('login-page');
+                loginPage.classList.add('hidden');
+                setTimeout(() => {
+                    loginPage.style.display = 'none';
+                    showPage('dashboard');
+                }, 600);
+            } else {
+                alert('Username atau password salah!');
+                document.getElementById('username_main').value = '';
+                document.getElementById('password_main').value = '';
+                document.getElementById('username_main').focus();
+            }
+        });
+
+        // ═══════════════════════════════════
+        // SIDEBAR
+        // ═══════════════════════════════════
+        const sidebar = document.getElementById('sidebar');
+        sidebar.addEventListener('mouseenter', () => sidebar.classList.add('expanded'));
+        sidebar.addEventListener('mouseleave', () => sidebar.classList.remove('expanded'));
+        sidebar.addEventListener('click', (e) => {
+            const item = e.target.closest('.menu-item');
+            if (item) showPage(item.getAttribute('data-page'));
+        });
+
+        // ═══════════════════════════════════
+        // PAGE SWITCHING
+        // ═══════════════════════════════════
+        function showPage(pageId) {
+            // Sembunyikan semua halaman
+            document.querySelectorAll('#dashboard, .practice-page').forEach(el => {
+                el.style.display = 'none';
+            });
+
+            sidebar.classList.remove('expanded');
+
+            if (pageId === 'dashboard') {
+                document.getElementById('dashboard').style.display = 'block';
+            } else {
+                const target = document.getElementById('page-' + pageId);
+                if (target) target.style.display = 'block';
+
+                // Init partikel khusus halaman kelulusan
+                if (pageId === 'kelulusan') {
+                    setTimeout(initParticles, 50);
+                }
+            }
+        }
+
+        // Card click di dashboard
+        document.querySelectorAll('.card[data-page]').forEach(card => {
+            card.addEventListener('click', () => showPage(card.getAttribute('data-page')));
+        });
+
+        // ═══════════════════════════════════
+        // HALAMAN: SELAMAT DATANG
+        // ═══════════════════════════════════
+        function bukaModal() {
+            const input = document.getElementById('namaInput');
+            const nama  = input.value.trim();
+
+            if (nama !== "") {
+                document.getElementById('pesanSapaan').innerText = `Halo ${nama}!`;
+                document.getElementById('modalOverlay').classList.add("active");
+            } else {
+                input.style.border = "2px solid #ff4d4d";
+                setTimeout(() => input.style.border = "2px solid transparent", 500);
+                alert("Ups! Namanya diisi dulu ya kak 😊");
+            }
+        }
+
+        function tutupModal() {
+            document.getElementById('modalOverlay').classList.remove("active");
+            document.getElementById('namaInput').value = "";
+        }
+
+        // Tutup modal jika klik di luar
+        document.getElementById('modalOverlay').addEventListener('click', (e) => {
+            if (e.target === document.getElementById('modalOverlay')) tutupModal();
+        });
+
+        // ═══════════════════════════════════
+        // HALAMAN: LOGIN SEDERHANA
+        // ═══════════════════════════════════
+       document.getElementById('loginForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+
+        const user = document.getElementById('username').value;
+        const pass = document.getElementById('password').value;
+        const msg = document.getElementById('message');
+
+        // Hapus class lama agar animasi bisa reset
+        msg.className = ""; 
+        msg.classList.remove('show');
+
+        // Trigger sedikit delay agar animasi reset terasa
+        setTimeout(() => {
+            if (user === "admin" && pass === "456") {
+                msg.innerHTML = "<span>✅</span> Login Berhasil! Selamat Datang.";
+                msg.className = "success show";
+            } else {
+                msg.innerHTML = "<span>❌</span> Login Gagal! Periksa kembali.";
+                msg.className = "error show";
+            }
+        }, 10);
+    });
+
+        // ═══════════════════════════════════
+        // HALAMAN: KALKULATOR
+        // ═══════════════════════════════════
+        function hitung(operator) {
+            const a = parseFloat(document.getElementById('angka1').value);
+            const b = parseFloat(document.getElementById('angka2').value);
+            if (isNaN(a) || isNaN(b)) { alert("Masukkan angka dulu ya ✨"); return; }
+
+            let hasil;
+            switch (operator) {
+                case '+': hasil = a + b; break;
+                case '-': hasil = a - b; break;
+                case '*': hasil = a * b; break;
+                case '/': hasil = b !== 0 ? a / b : "Error (÷0)"; break;
+            }
+            document.getElementById('hasil').innerText = hasil;
+        }
+
+        // ═══════════════════════════════════
+        // HALAMAN: TEBAK ANGKA
+        // ═══════════════════════════════════
+      let targetNumber = Math.floor(Math.random() * 10) + 1;
+
+    const guessInput = document.getElementById('userGuess');
+    const guessBtn = document.getElementById('guessBtn');
+    const message = document.getElementById('tebakMessage');
+    const resetBtn = document.getElementById('resetBtn');
+
+    guessBtn.addEventListener('click', () => {
+        const userGuess = parseInt(guessInput.value); // ← Sederhanakan ini
+
+        if (isNaN(userGuess) || userGuess < 1 || userGuess > 10) {
+            showMessage("Masukkan angka 1-10!", "error");
+            return;
+        }
+
+        if (userGuess === targetNumber) {
+            showMessage("🎉 Tebakan Anda benar!", "success");
+            endGame();
+        } else {
+            showMessage("❌ Tebakan Anda salah!", "error");
+            guessInput.value = '';
+            guessInput.focus();
+        }
+    });
+
+    function showMessage(text, className) {
+        message.textContent = text;
+        message.className = `message ${className}`;
+    }
+
+    function endGame() {
+        guessBtn.disabled = true;
+        guessInput.disabled = true;
+        resetBtn.classList.remove('hidden');
+    }
+
+    resetBtn.addEventListener('click', () => {
+        targetNumber = Math.floor(Math.random() * 10) + 1;
+        guessInput.value = '';
+        guessInput.disabled = false;
+        guessBtn.disabled = false;
+        message.textContent = '';
+        message.className = 'message';
+        resetBtn.classList.add('hidden');
+    });
+
+        // ═══════════════════════════════════
+        // HALAMAN: OPERASI MATEMATIKA
+        // ═══════════════════════════════════
+        function hitungOperasi() {
+            const a = parseFloat(document.getElementById('op-angka1').value);
+            const b = parseFloat(document.getElementById('op-angka2').value);
+            if (isNaN(a) || isNaN(b)) { alert("Masukkan kedua angka!"); return; }
+
+            document.getElementById('tambah').innerText = a + b;
+            document.getElementById('kurang').innerText = a - b;
+            document.getElementById('kali').innerText   = a * b;
+            document.getElementById('bagi').innerText   = b !== 0 ? (a / b).toFixed(2) : "Tak terhingga";
+            document.getElementById('hasil-operasi').style.display = 'block';
+        }
+
+        // ═══════════════════════════════════
+        // HALAMAN: PENENTU KELULUSAN — partikel
+        // ═══════════════════════════════════
+        let particlesArray = [];
+        let particleCanvas = null;
+        let particleCtx    = null;
+        let particleAnimId = null;
+
+        class Particle {
+            constructor(canvas) {
+                this.canvas = canvas;
+                this.x      = Math.random() * canvas.width;
+                this.y      = Math.random() * canvas.height;
+                this.size   = Math.random() * 2 + 0.5;
+                this.speedX = Math.random() * 0.5 - 0.25;
+                this.speedY = Math.random() * 0.5 - 0.25;
+                this.color  = 'rgba(191, 126, 70, 0.4)';
+            }
+            update() {
+                this.x += this.speedX;
+                this.y += this.speedY;
+                if (this.x < 0 || this.x > this.canvas.width)  this.speedX *= -1;
+                if (this.y < 0 || this.y > this.canvas.height) this.speedY *= -1;
+            }
+            draw() {
+                particleCtx.fillStyle = this.color;
+                particleCtx.beginPath();
+                particleCtx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                particleCtx.fill();
+            }
+        }
+
+        function initParticles() {
+            particleCanvas = document.getElementById('particles');
+            if (!particleCanvas) return;
+            particleCtx = particleCanvas.getContext('2d');
+            particleCanvas.width  = window.innerWidth;
+            particleCanvas.height = window.innerHeight;
+            particlesArray = [];
+            for (let i = 0; i < 80; i++) particlesArray.push(new Particle(particleCanvas));
+            if (particleAnimId) cancelAnimationFrame(particleAnimId);
+            animateParticles();
+        }
+
+        function animateParticles() {
+            if (!particleCtx || !particleCanvas) return;
+            particleCtx.clearRect(0, 0, particleCanvas.width, particleCanvas.height);
+            particlesArray.forEach(p => { p.update(); p.draw(); });
+            particleAnimId = requestAnimationFrame(animateParticles);
+        }
+
+        window.addEventListener('resize', () => {
+            if (!particleCanvas) return;
+            particleCanvas.width  = window.innerWidth;
+            particleCanvas.height = window.innerHeight;
+            initParticles();
+        });
+
+        function cekKelulusan() {
+            const nilaiInput = document.getElementById('inputNilaiKelulusan').value.trim();
+            if (!nilaiInput) { alert("Masukkan nilainya dulu ya! 😊"); return; }
+
+            const nilai  = parseFloat(nilaiInput);
+            const status = document.getElementById('status');
+            const pesan  = document.getElementById('pesan');
+
+            if (nilai >= 75) {
+                status.textContent = "LULUS";
+                status.className   = "success";
+                pesan.textContent  = "Selamat! Pertahankan prestasimu! 🎉✨";
+
+                const end = Date.now() + 5000;
+                (function frame() {
+                    confetti({ particleCount: 8, angle: 60,  spread: 60, origin: { x: 0 }, colors: ['#ff9d00','#ffd700','#00ff9d','#bf7e46','#ffffff'] });
+                    confetti({ particleCount: 8, angle: 120, spread: 60, origin: { x: 1 }, colors: ['#ff9d00','#ffd700','#00ff9d','#bf7e46','#ffffff'] });
+                    if (Date.now() < end) requestAnimationFrame(frame);
+                }());
+            } else {
+                status.textContent = "TIDAK LULUS";
+                status.className   = "danger";
+                pesan.textContent  = "Tetap semangat dan belajar lagi! Kamu pasti bisa! 💪🔥";
+            }
+
+            document.getElementById('overlay').classList.add('show');
+        }
+
+        function tutupPopup() {
+            document.getElementById('overlay').classList.remove('show');
+        }
+
+        // ═══════════════════════════════════
+        // HALAMAN: CEK GRADE NILAI
+        // ═══════════════════════════════════
+        function hitungGrade() {
+            const nilai     = parseFloat(document.getElementById('inputNilai').value);
+            const resultBox = document.getElementById('resultBox');
+            const hurufGrade = document.getElementById('hurufGrade');
+
+            if (isNaN(nilai) || nilai < 0 || nilai > 100) {
+                alert("Harap masukkan nilai antara 0 - 100 ya! 😊");
+                return;
+            }
+
+            let grade, warna;
+            if      (nilai >= 85) { grade = "A"; warna = "#02da38"; }
+            else if (nilai >= 75) { grade = "B"; warna = "#3498db"; }
+            else if (nilai >= 65) { grade = "C"; warna = "#f1c40f"; }
+            else if (nilai >= 50) { grade = "D"; warna = "#e67e22"; }
+            else                  { grade = "E"; warna = "#e74c3c"; }
+
+            resultBox.classList.remove('hidden', 'animate__bounceIn');
+            void resultBox.offsetWidth; // trigger reflow untuk reset animasi
+            resultBox.classList.add('animate__bounceIn');
+
+            hurufGrade.innerText    = grade;
+            hurufGrade.style.color  = warna;
+        }
+    </script>
+</body>
+</html>
